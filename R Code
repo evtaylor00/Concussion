@@ -1,0 +1,60 @@
+library(knitr)
+library(kableExtra)
+library(tidyverse)
+
+conc_data<-read.csv("Contex.csv",header=T)
+
+ss.df<-data.frame(Labels=c("Total","Male","Female","Hispanic or Latino","Not Hispanic or Latino","Unknown","American Indian/Alaska Native","Asian","Native Hawaiian or Other Pacific Islander","Black or African American","White","More Than One Race","Unknown","Diagnosed","No Diagnosis","Missing", "Diagnosed","No Diagnosis","Missing", "Football","Soccer","Baseball/Softball","Basketball","Other"), Counts=c(nrow(conc_data),sum(conc_data$sex==1), sum(conc_data$sex==0), sum(conc_data$ethnicity==0), sum(conc_data$ethnicity==1),sum(conc_data$ethnicity==2),sum(conc_data$race==0),sum(conc_data$race==1),sum(conc_data$race==2),sum(conc_data$race==3),sum(conc_data$race==4),sum(conc_data$race==5),sum(conc_data$race==6),sum(conc_data$psych_disorder==1&!is.na(conc_data$psych_disorder)),sum(conc_data$psych_disorder==0&!is.na(conc_data$psych_disorder)),sum(is.na(conc_data$psych_disorder)),sum(conc_data$learning_disability==1&!is.na(conc_data$learning_disability)),sum(conc_data$learning_disability==0&!is.na(conc_data$learning_disability)),sum(is.na(conc_data$learning_disability)),sum(conc_data$sport_played_injured==1),sum(conc_data$sport_played_injured==7),sum(conc_data$sport_played_injured==10|conc_data$sport_played_injured==9),sum(conc_data$sport_played_injured==4),sum(conc_data$sport_played_injured==25|conc_data$sport_played_injured==2|conc_data$sport_played_injured==23|conc_data$sport_played_injured==32|conc_data$sport_played_injured==18|conc_data$sport_played_injured==3|conc_data$sport_played_injured==27|conc_data$sport_played_injured==33|conc_data$sport_played_injured==5|conc_data$sport_played_injured==6|conc_data$sport_played_injured==8|conc_data$sport_played_injured==11|conc_data$sport_played_injured==26|conc_data$sport_played_injured==13|conc_data$sport_played_injured==14|conc_data$sport_played_injured==15|conc_data$sport_played_injured==12|conc_data$sport_played_injured==21|conc_data$sport_played_injured==16|conc_data$sport_played_injured==29|conc_data$sport_played_injured==28|conc_data$sport_played_injured==19|conc_data$sport_played_injured==17|conc_data$sport_played_injured==20|conc_data$sport_played_injured==24|conc_data$sport_played_injured==31|conc_data$sport_played_injured==34|conc_data$sport_played_injured==22)))
+
+
+kable(ss.df[1:24,1:2], format = "html",col.names =c("","")) %>%
+kable_classic(full_width = F, html_font = "Cambria") %>%
+row_spec(1,bold=T,hline_after = T) %>%
+kableExtra::group_rows("Gender",2,3) %>%
+kableExtra::group_rows("Ethnicity", 4, 6) %>%
+kableExtra::group_rows("Race",7,13) %>%
+kableExtra::group_rows("Psychological",14,16) %>%
+kableExtra::group_rows("Learning Disability",17,19) %>%
+kableExtra::group_rows("Sport",20,24)
+
+#sex
+Contex$binary<-as.numeric(Contex$doi_clear_sx_medrec_edited>3)
+sex.mat<-matrix(c(length(Contex$sex[Contex$binary==1&Contex$sex==1]),length(Contex$sex[Contex$binary==1&Contex$sex==0]),length(Contex$sex[Contex$binary==0&Contex$sex==1]),length(Contex$sex[Contex$binary==0&Contex$sex==0])),nrow=2)
+row.names(sex.mat)<-c("Male","Female")
+colnames(sex.mat)<-c(">14","<=14")
+chisq.test(sex.mat)
+
+#loc
+library(coin)
+wilcox_test(Contex$loc_duration_edited~as.factor(Contex$binary))
+mean(Contex$loc_duration_edited[Contex$binary==1],na.rm=TRUE)
+sd(Contex$loc_duration_edited[Contex$binary==1],na.rm=TRUE)
+mean(Contex$loc_duration_edited[Contex$binary==0],na.rm=TRUE)
+sd(Contex$loc_duration_edited[Contex$binary==0],na.rm=TRUE)
+
+#days to clinic
+wilcox_test(Contex$delay_bt_inj_dx_edited~as.factor(Contex$binary))
+mean(Contex$delay_bt_inj_dx_edited[Contex$binary==1],na.rm=TRUE)
+sd(Contex$delay_bt_inj_dx_edited[Contex$binary==1],na.rm=TRUE)
+mean(Contex$delay_bt_inj_dx_edited[Contex$binary==0],na.rm=TRUE)
+sd(Contex$delay_bt_inj_dx_edited[Contex$binary==0],na.rm=TRUE)
+
+#headache
+head.mat<-matrix(c(length(Contex$headache_post_inj[Contex$binary==1&Contex$headache_post_inj==1]),length(Contex$headache_post_inj[Contex$binary==1&Contex$headache_post_inj==0]),length(Contex$headache_post_inj[Contex$binary==0&Contex$headache_post_inj==1]),length(Contex$headache_post_inj[Contex$binary==0&Contex$headache_post_inj==0])),nrow=2)
+row.names(head.mat)<-c("Headache","No Headache")
+colnames(head.mat)<-c(">14","<=14")
+chisq.test(head.mat)
+
+#rtp post inj
+rtp_post.mat<-matrix(c(length(Contex$rtp_post_inj[Contex$binary==1&Contex$rtp_post_inj==1]),length(Contex$rtp_post_inj[Contex$binary==1&Contex$rtp_post_inj==0]),length(Contex$rtp_post_inj[Contex$binary==0&Contex$rtp_post_inj==1]),length(Contex$rtp_post_inj[Contex$binary==0&Contex$rtp_post_inj==0])),nrow=2)
+row.names(rtp_post.mat)<-c("RTP Post Injury","No RTP Post Injury")
+colnames(rtp_post.mat)<-c(">14","<=14")
+chisq.test(rtp_post.mat)
+
+#rtp
+rtp.mat<-matrix(c(length(Contex$rtp[Contex$binary==1&Contex$rtp==1]),length(Contex$rtp[Contex$binary==1&Contex$rtp==0]),length(Contex$rtp[Contex$binary==0&Contex$rtp==1]),length(Contex$rtp[Contex$binary==0&Contex$rtp==0])),nrow=2)
+row.names(rtp.mat)<-c("RTP","No RTP")
+colnames(rtp.mat)<-c(">14","<=14")
+chisq.test(rtp.mat)
+
+
