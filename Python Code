@@ -63,7 +63,54 @@ conc_test['race']=conc_data['race'].astype("category")
 conc_test['hx_migraine']=conc_data['hx_migraine'].astype("category")
 conc_test['sport_played_injured_cat']=conc_data['sport_played_injured_cat'].astype("category")
 
-########running models########
+#######multiclass classification models#############
+#setup
+conc_class = clf1.setup(conc_train, target = 'doi_clear_sx_medrec_edited', ignore_features=['doi_clear_sx_medrec_2','complete_rtp_recoded','record_id','psych_disorder_type___1','psych_disorder_type___2','psych_disorder_type___3','psych_disorder_type___4','psych_disorder_type___5','psych_disorder_type___6','learning_disability_type___1','learning_disability_type___2','learning_disability_type___3','learning_disability_type___4','doi_clear_sx_medrec_2','sport_played_injured'],session_id=7630,index=False, test_data=None)
+conc_best_class=conc_class.compare_models() #compare ML models
+
+#catboost
+conc_cat = clf1.create_model('catboost')
+conc_tuned_cat = clf1.tune_model(conc_cat)
+clf1.plot_model(conc_tuned_cat, plot='feature')
+clf1.predict_model(conc_tuned_cat)
+final_cat = clf1.finalize_model(conc_tuned_cat)
+final_cat_predictions = clf1.predict_model(final_cat, data=conc_test)
+
+#random forest
+conc_rf = clf1.create_model('rf')
+conc_tuned_rf = clf1.tune_model(conc_rf)
+clf1.plot_model(conc_tuned_rf, plot='feature')
+clf1.predict_model(conc_tuned_rf)
+final_conc_rf = clf1.finalize_model(conc_tuned_rf)
+conc_pred_rf = clf1.predict_model(final_conc_rf, data=conc_test)
+
+#xgboost
+conc_xg = clf1.create_model('xgboost')
+conc_tuned_xg = clf1.tune_model(conc_xg)
+clf1.plot_model(conc_tuned_xg, plot='feature')
+clf1.predict_model(conc_tuned_xg)
+final_conc_xg = clf1.finalize_model(conc_tuned_xg)
+conc_pred_xg = clf1.predict_model(final_conc_xg, data=conc_test)
+
+#confusion matrix
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+import matplotlib.pyplot as plt
+import seaborn as sns
+actual    = conc_test.doi_clear_sx_medrec_edited
+predicted = conc_pred_rf.prediction_label
+cm = confusion_matrix(actual,predicted)
+
+plt.figure(figsize=(8, 6))
+plt.figure(figsize=(8, 6))
+sns.heatmap(cm, annot=True, cmap='Blues', xticklabels=[
+            '0-3 days', '3-7 days','7-14 days', '14 days-1 month', '1-3 months','>3 months'], yticklabels=['0-3 days', '3-7 days','7-14 days', '14 days-1 month', '1-3 months','>3 months'])
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.title('Confusion Matrix')
+plt.show()
+
+
+########binary classification models########
 #create binary split
 conc_train.loc[conc_train['doi_clear_sx_medrec_edited']<=3,'Predict3']=0
 conc_train.loc[conc_train['doi_clear_sx_medrec_edited']>3,'Predict3']=1
