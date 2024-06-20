@@ -31,11 +31,17 @@ conc_train.loc[conc_train['headache_post_inj']>0.5,'headache_post_inj']=1
 conc_train.loc[conc_train['rtp']<=0.5,'rtp']=0
 conc_train.loc[conc_train['rtp'].between(0.5,1,inclusive='right'),'rtp']=1
 conc_train.loc[conc_train['rtp']>1,'rtp']=2
+conc_train.loc[conc_train['sx_worsen_cog']<=0.5,'sx_worsen_cog']=0
+conc_train.loc[conc_train['sx_worsen_cog'].between(0.5,1,inclusive='right'),'sx_worsen_cog']=1
+conc_train.loc[conc_train['sx_worsen_cog']>1,'sx_worsen_cog']=2
+conc_train.loc[conc_train['sx_worsen_phys']<=0.5,'sx_worsen_phys']=0
+conc_train.loc[conc_train['sx_worsen_phys'].between(0.5,1,inclusive='right'),'sx_worsen_phys']=1
+conc_train.loc[conc_train['sx_worsen_phys']>1,'sx_worsen_phys']=2
 
+conc_train['sx_worsen_cog']=conc_train['sx_worsen_cog'].astype("category")
+conc_train['sx_worsen_phys']=conc_train['sx_worsen_phys'].astype("category")
 conc_train['rtp']=conc_train['rtp'].astype("category")
-conc_train['sex']=conc_train['sex'].astype("category")
 conc_train['race']=conc_train['race'].astype("category")
-conc_train['hx_migraine']=conc_train['hx_migraine'].astype("category")
 conc_train['sport_played_injured_cat']=conc_train['sport_played_injured_cat'].astype("category")
 
 #######imputation for testing set##########
@@ -60,10 +66,17 @@ conc_test.loc[conc_test['headache_post_inj']>0.5,'headache_post_inj']=1
 conc_test.loc[conc_test['rtp']<=0.5,'rtp']=0
 conc_test.loc[conc_test['rtp'].between(0.5,1,inclusive='right'),'rtp']=1
 conc_test.loc[conc_test['rtp']>1,'rtp']=2
+conc_test.loc[conc_test['sx_worsen_cog']<=0.5,'sx_worsen_cog']=0
+conc_test.loc[conc_test['sx_worsen_cog'].between(0.5,1,inclusive='right'),'sx_worsen_cog']=1
+conc_test.loc[conc_test['sx_worsen_cog']>1,'sx_worsen_cog']=2
+conc_test.loc[conc_test['sx_worsen_phys']<=0.5,'sx_worsen_phys']=0
+conc_test.loc[conc_test['sx_worsen_phys'].between(0.5,1,inclusive='right'),'sx_worsen_phys']=1
+conc_test.loc[conc_test['sx_worsen_phys']>1,'sx_worsen_phys']=2
 
-conc_test['sex']=conc_test['sex'].astype("category")
+conc_test['sx_worsen_cog']=conc_test['sx_worsen_cog'].astype("category")
+conc_test['sx_worsen_phys']=conc_test['sx_worsen_phys'].astype("category")
+conc_test['rtp']=conc_test['rtp'].astype("category")
 conc_test['race']=conc_test['race'].astype("category")
-conc_test['hx_migraine']=conc_est['hx_migraine'].astype("category")
 conc_test['sport_played_injured_cat']=conc_test['sport_played_injured_cat'].astype("category")
 
 #######multiclass classification models#############
