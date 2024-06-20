@@ -29,12 +29,14 @@ conc_train.loc[conc_train['ed_hospitalization']>0.5,'ed_hospitalization']=1
 conc_train.loc[conc_train['headache_post_inj']<=0.5,'headache_post_inj']=0
 conc_train.loc[conc_train['headache_post_inj']>0.5,'headache_post_inj']=1
 conc_train.loc[conc_train['rtp']<=0.5,'rtp']=0
-conc_train.loc[conc_train['rtp']>0.5,'rtp']=1
+conc_train.loc[conc_train['rtp'].between(0.5,1,inclusive='right'),'rtp']=1
+conc_train.loc[conc_train['rtp']>1,'rtp']=2
 
-conc_train['sex']=conc_data['sex'].astype("category")
-conc_train['race']=conc_data['race'].astype("category")
-conc_train['hx_migraine']=conc_data['hx_migraine'].astype("category")
-conc_train['sport_played_injured_cat']=conc_data['sport_played_injured_cat'].astype("category")
+conc_train['rtp']=conc_train['rtp'].astype("category")
+conc_train['sex']=conc_train['sex'].astype("category")
+conc_train['race']=conc_train['race'].astype("category")
+conc_train['hx_migraine']=conc_train['hx_migraine'].astype("category")
+conc_train['sport_played_injured_cat']=conc_train['sport_played_injured_cat'].astype("category")
 
 #######imputation for testing set##########
 conc_test_x=conc_test.iloc[:, 2:]
@@ -56,16 +58,17 @@ conc_test.loc[conc_test['ed_hospitalization']>0.5,'ed_hospitalization']=1
 conc_test.loc[conc_test['headache_post_inj']<=0.5,'headache_post_inj']=0
 conc_test.loc[conc_test['headache_post_inj']>0.5,'headache_post_inj']=1
 conc_test.loc[conc_test['rtp']<=0.5,'rtp']=0
-conc_test.loc[conc_test['rtp']>0.5,'rtp']=1
+conc_test.loc[conc_test['rtp'].between(0.5,1,inclusive='right'),'rtp']=1
+conc_test.loc[conc_test['rtp']>1,'rtp']=2
 
-conc_test['sex']=conc_data['sex'].astype("category")
-conc_test['race']=conc_data['race'].astype("category")
-conc_test['hx_migraine']=conc_data['hx_migraine'].astype("category")
-conc_test['sport_played_injured_cat']=conc_data['sport_played_injured_cat'].astype("category")
+conc_test['sex']=conc_test['sex'].astype("category")
+conc_test['race']=conc_test['race'].astype("category")
+conc_test['hx_migraine']=conc_est['hx_migraine'].astype("category")
+conc_test['sport_played_injured_cat']=conc_test['sport_played_injured_cat'].astype("category")
 
 #######multiclass classification models#############
 #setup
-conc_class = clf1.setup(conc_train, target = 'doi_clear_sx_medrec_edited', ignore_features=['doi_clear_sx_medrec_2','complete_rtp_recoded','record_id','psych_disorder_type___1','psych_disorder_type___2','psych_disorder_type___3','psych_disorder_type___4','psych_disorder_type___5','psych_disorder_type___6','learning_disability_type___1','learning_disability_type___2','learning_disability_type___3','learning_disability_type___4','doi_clear_sx_medrec_2','sport_played_injured'],session_id=7630,index=False, test_data=None)
+conc_class = clf1.setup(conc_train, target = 'doi_clear_sx_medrec_edited', ignore_features=['doi_clear_sx_medrec_2','complete_rtp_recoded','record_id','psych_disorder_type___1','psych_disorder_type___2','psych_disorder_type___3','psych_disorder_type___4','psych_disorder_type___5','psych_disorder_type___6','learning_disability_type___1','learning_disability_type___2','learning_disability_type___3','learning_disability_type___4','doi_clear_sx_medrec_2','sport_played_injured'],index=False, test_data=None)
 conc_best_class=conc_class.compare_models() #compare ML models
 
 #catboost
@@ -116,7 +119,7 @@ conc_train.loc[conc_train['doi_clear_sx_medrec_edited']<=3,'Predict3']=0
 conc_train.loc[conc_train['doi_clear_sx_medrec_edited']>3,'Predict3']=1
 
 #setup data
-conc_class_3 = clf1.setup(conc_train, target = 'Predict3', ignore_features=['Predict2','Predict1','complete_rtp_recoded','doi_clear_sx_medrec_edited','doi_clear_sx_medrec_cat','record_id','psych_disorder_type___1','psych_disorder_type___2','psych_disorder_type___3','psych_disorder_type___4','psych_disorder_type___5','psych_disorder_type___6','learning_disability_type___1','learning_disability_type___2','learning_disability_type___3','learning_disability_type___4','doi_clear_sx_medrec_2','sport_played_injured'],session_id=2017,index=False, test_data=None)
+conc_class_3 = clf1.setup(conc_train, target = 'Predict3', ignore_features=['Predict2','Predict1','complete_rtp_recoded','doi_clear_sx_medrec_edited','doi_clear_sx_medrec_cat','record_id','psych_disorder_type___1','psych_disorder_type___2','psych_disorder_type___3','psych_disorder_type___4','psych_disorder_type___5','psych_disorder_type___6','learning_disability_type___1','learning_disability_type___2','learning_disability_type___3','learning_disability_type___4','doi_clear_sx_medrec_2','sport_played_injured'],index=False, test_data=None)
 
 #find top models
 conc_best_class = conc_class_3.compare_models() #compare ML models
