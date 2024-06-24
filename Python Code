@@ -10,7 +10,7 @@ clf1 = ClassificationExperiment()
 conc_data=pd.read_csv("/ContexData.csv") #read in data
 
 ########train-test split#########
-conc_train, conc_test = sk.model_selection.train_test_split(conc_data, test_size=0.2, random_state=25) #subset into train and test
+conc_train, conc_test = sk.model_selection.train_test_split(conc_data, test_size=0.2, random_state=75) #subset into train and test
 
 #########imputation for training set#########
 imputer = sk.impute.IterativeImputer()
@@ -132,7 +132,7 @@ conc_train.loc[conc_train['doi_clear_sx_medrec_edited']<=3,'Predict3']=0
 conc_train.loc[conc_train['doi_clear_sx_medrec_edited']>3,'Predict3']=1
 
 #setup data
-conc_class_3 = clf1.setup(conc_train, target = 'Predict3', ignore_features=['Predict2','Predict1','complete_rtp_recoded','doi_clear_sx_medrec_edited','doi_clear_sx_medrec_cat','record_id','psych_disorder_type___1','psych_disorder_type___2','psych_disorder_type___3','psych_disorder_type___4','psych_disorder_type___5','psych_disorder_type___6','learning_disability_type___1','learning_disability_type___2','learning_disability_type___3','learning_disability_type___4','doi_clear_sx_medrec_2','sport_played_injured'],index=False, test_data=None)
+conc_class_3 = clf1.setup(conc_train, target = 'Predict3', ignore_features=['Predict2','Predict1','complete_rtp_recoded','doi_clear_sx_medrec_edited','doi_clear_sx_medrec_cat','record_id','psych_disorder_type___1','psych_disorder_type___2','psych_disorder_type___3','psych_disorder_type___4','psych_disorder_type___5','psych_disorder_type___6','learning_disability_type___1','learning_disability_type___2','learning_disability_type___3','learning_disability_type___4','doi_clear_sx_medrec_2','sport_played_injured'],session_id=2514, index=False, test_data=None)
 
 #find top models
 conc_best_class = conc_class_3.compare_models() #compare ML models
