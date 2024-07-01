@@ -57,4 +57,10 @@ row.names(rtp.mat)<-c("RTP","No RTP")
 colnames(rtp.mat)<-c(">14","<=14")
 chisq.test(rtp.mat)
 
+#time to clinic since injury
+wilcox_test(Contex$time_since_injury~as.factor(Contex$binary))
+mean(Contex$time_since_injury[Contex$binary==1],na.rm=TRUE)
+mean(Contex$time_since_injury[Contex$binary==0],na.rm=TRUE)
+sd(Contex$time_since_injury[Contex$binary==1],na.rm=TRUE)
+sd(Contex$time_since_injury[Contex$binary==0],na.rm=TRUE)
 
