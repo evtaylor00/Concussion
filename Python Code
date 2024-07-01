@@ -81,7 +81,7 @@ conc_test['sport_played_injured_cat']=conc_test['sport_played_injured_cat'].asty
 
 #######multiclass classification models#############
 #setup
-conc_class = clf1.setup(conc_train, target = 'doi_clear_sx_medrec_edited', ignore_features=['doi_clear_sx_medrec_2','complete_rtp_recoded','record_id','psych_disorder_type___1','psych_disorder_type___2','psych_disorder_type___3','psych_disorder_type___4','psych_disorder_type___5','psych_disorder_type___6','learning_disability_type___1','learning_disability_type___2','learning_disability_type___3','learning_disability_type___4','doi_clear_sx_medrec_2','sport_played_injured'],index=False, test_data=None)
+conc_class = clf1.setup(conc_train, target = 'doi_clear_sx_medrec_edited', ignore_features=['doi_clear_sx_medrec_2','complete_rtp_recoded','record_id','psych_disorder_type___1','psych_disorder_type___2','psych_disorder_type___3','psych_disorder_type___4','psych_disorder_type___5','psych_disorder_type___6','learning_disability_type___1','learning_disability_type___2','learning_disability_type___3','learning_disability_type___4','doi_clear_sx_medrec_2','sport_played_injured'],session_id=2514, index=False, test_data=None)
 conc_best_class=conc_class.compare_models() #compare ML models
 
 #catboost
@@ -132,7 +132,7 @@ conc_train.loc[conc_train['doi_clear_sx_medrec_edited']<=3,'Predict3']=0
 conc_train.loc[conc_train['doi_clear_sx_medrec_edited']>3,'Predict3']=1
 
 #setup data
-conc_class_3 = clf1.setup(conc_train, target = 'Predict3', ignore_features=['Predict2','Predict1','complete_rtp_recoded','doi_clear_sx_medrec_edited','doi_clear_sx_medrec_cat','record_id','psych_disorder_type___1','psych_disorder_type___2','psych_disorder_type___3','psych_disorder_type___4','psych_disorder_type___5','psych_disorder_type___6','learning_disability_type___1','learning_disability_type___2','learning_disability_type___3','learning_disability_type___4','doi_clear_sx_medrec_2','sport_played_injured'],session_id=2514, index=False, test_data=None)
+conc_class_3 = clf1.setup(conc_train, target = 'Predict3', ignore_features=['Predict2','Predict1','complete_rtp_recoded','doi_clear_sx_medrec_edited','doi_clear_sx_medrec_cat','record_id','psych_disorder_type___1','psych_disorder_type___2','psych_disorder_type___3','psych_disorder_type___4','psych_disorder_type___5','psych_disorder_type___6','learning_disability_type___1','learning_disability_type___2','learning_disability_type___3','learning_disability_type___4','doi_clear_sx_medrec_2','sport_played_injured'],session_id=912, index=False, test_data=None)
 
 #find top models
 conc_best_class = conc_class_3.compare_models() #compare ML models
@@ -146,21 +146,21 @@ final_conc_cat_3 = clf1.finalize_model(conc_tuned_cat_3)
 conc_pred_3 = clf1.predict_model(final_conc_cat_3, data=conc_test)
 clf1.interpret_model(conc_cat_3, plot='pfi',scale=3,save=True)
 
-#extra trees
-conc_et_3 = clf1.create_model('et',fold=5)
-conc_tuned_et_3 = clf1.tune_model(conc_et_3,fold=5,optimize='AUC')
-clf1.plot_model(conc_tuned_et_3, plot='feature')
-clf1.predict_model(conc_tuned_et_3)
-final_conc_et_3 = clf1.finalize_model(conc_tuned_et_3)
-conc_pred_3_et = clf1.predict_model(final_conc_et_3, data=conc_test)
+#gradient boost
+conc_gb_3 = clf1.create_model('gbc',fold=5)
+conc_tuned_gb_3 = clf1.tune_model(conc_gb_3,fold=5,optimize='AUC')
+clf1.plot_model(conc_tuned_gb_3, plot='feature')
+clf1.predict_model(conc_tuned_gb_3)
+final_conc_gb_3 = clf1.finalize_model(conc_tuned_gb_3)
+conc_pred_3_gb = clf1.predict_model(final_conc_gb_3, data=conc_test)
 
-#random forest
-conc_rf_3 = clf1.create_model('rf',fold=5)
-conc_tuned_rf_3 = clf1.tune_model(conc_rf_3,fold=5,optimize='AUC')
-clf1.plot_model(conc_tuned_rf_3, plot='feature')
-clf1.predict_model(conc_tuned_rf_3)
-final_conc_rf_3 = clf1.finalize_model(conc_tuned_rf_3)
-conc_pred_3_rf = clf1.predict_model(final_conc_rf_3, data=conc_test)
+#AdaBoost
+conc_ada_3 = clf1.create_model('ada',fold=5)
+conc_tuned_ada_3 = clf1.tune_model(conc_ada_3,fold=5,optimize='AUC')
+clf1.plot_model(conc_tuned_ada_3, plot='feature')
+clf1.predict_model(conc_tuned_ada_3)
+final_conc_ada_3 = clf1.finalize_model(conc_tuned_ada_3)
+conc_pred_3_ada = clf1.predict_model(final_conc_ada_3, data=conc_test)
 
 #confusion matrix
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
