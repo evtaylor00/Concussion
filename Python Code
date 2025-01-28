@@ -7,10 +7,10 @@ from pycaret.classification import *
 clf1 = ClassificationExperiment()
 
 ########importing data#######
-conc_data=pd.read_csv("/ContexData.csv") #read in data
+conc_data=pd.read_csv("/ContexData_TimeToClinicLessThan2Weeks.csv") #read in data
 
 ########train-test split#########
-conc_train, conc_test = sk.model_selection.train_test_split(conc_data, test_size=0.2, random_state=75) #subset into train and test
+conc_train, conc_test = sk.model_selection.train_test_split(conc_data, test_size=0.2, random_state=5) #subset into train and test
 
 #########imputation for training set#########
 imputer = sk.impute.IterativeImputer()
@@ -31,6 +31,7 @@ conc_train.loc[conc_train['headache_post_inj']>0.5,'headache_post_inj']=1
 conc_train.loc[conc_train['rtp']<=0.5,'rtp']=0
 conc_train.loc[conc_train['rtp'].between(0.5,1,inclusive='right'),'rtp']=1
 conc_train.loc[conc_train['rtp']>1,'rtp']=2
+conc_train.loc[conc_train['sx_worsen_phys']<=0.5,'sx_worsen_phys']=0
 conc_train.loc[conc_train['sx_worsen_cog']<=0.5,'sx_worsen_cog']=0
 conc_train.loc[conc_train['sx_worsen_cog'].between(0.5,1,inclusive='right'),'sx_worsen_cog']=1
 conc_train.loc[conc_train['sx_worsen_cog']>1,'sx_worsen_cog']=2
@@ -38,10 +39,12 @@ conc_train.loc[conc_train['sx_worsen_phys']<=0.5,'sx_worsen_phys']=0
 conc_train.loc[conc_train['sx_worsen_phys'].between(0.5,1,inclusive='right'),'sx_worsen_phys']=1
 conc_train.loc[conc_train['sx_worsen_phys']>1,'sx_worsen_phys']=2
 
+
 conc_train['sx_worsen_cog']=conc_train['sx_worsen_cog'].astype("category")
 conc_train['sx_worsen_phys']=conc_train['sx_worsen_phys'].astype("category")
 conc_train['rtp']=conc_train['rtp'].astype("category")
 conc_train['race']=conc_train['race'].astype("category")
+conc_train['ethnicity']=conc_data['ethnicity'].astype("category")
 conc_train['sport_played_injured_cat']=conc_train['sport_played_injured_cat'].astype("category")
 
 #######imputation for testing set##########
@@ -77,11 +80,16 @@ conc_test['sx_worsen_cog']=conc_test['sx_worsen_cog'].astype("category")
 conc_test['sx_worsen_phys']=conc_test['sx_worsen_phys'].astype("category")
 conc_test['rtp']=conc_test['rtp'].astype("category")
 conc_test['race']=conc_test['race'].astype("category")
+conc_test['ethnicity']=conc_data['ethnicity'].astype("category")
 conc_test['sport_played_injured_cat']=conc_test['sport_played_injured_cat'].astype("category")
+
+#########correlation calculations###################
+correlation=pd.DataFrame(conc_data.corr())
+correlation.to_csv()
 
 #######multiclass classification models#############
 #setup
-conc_class = clf1.setup(conc_train, target = 'doi_clear_sx_medrec_edited', ignore_features=['doi_clear_sx_medrec_2','complete_rtp_recoded','record_id','psych_disorder_type___1','psych_disorder_type___2','psych_disorder_type___3','psych_disorder_type___4','psych_disorder_type___5','psych_disorder_type___6','learning_disability_type___1','learning_disability_type___2','learning_disability_type___3','learning_disability_type___4','doi_clear_sx_medrec_2','sport_played_injured'],session_id=2514, index=False, test_data=None)
+conc_class = clf1.setup(conc_train, target = 'doi_clear_sx_medrec_edited', ignore_features=['complete_rtp_recoded','record_id','doi_clear_sx_medrec_2','sport_played_injured'],session_id=100,index=False, test_data=None)
 conc_best_class=conc_class.compare_models() #compare ML models
 
 #catboost
@@ -125,6 +133,9 @@ plt.ylabel('Actual')
 plt.title('Confusion Matrix')
 plt.show()
 
+#feature importance
+clf1.plot_model(conc_tuned_cat, plot='feature_all')
+
 
 ########binary classification models########
 #create binary split
@@ -132,7 +143,7 @@ conc_train.loc[conc_train['doi_clear_sx_medrec_edited']<=3,'Predict3']=0
 conc_train.loc[conc_train['doi_clear_sx_medrec_edited']>3,'Predict3']=1
 
 #setup data
-conc_class_3 = clf1.setup(conc_train, target = 'Predict3', ignore_features=['Predict2','Predict1','complete_rtp_recoded','doi_clear_sx_medrec_edited','doi_clear_sx_medrec_cat','record_id','psych_disorder_type___1','psych_disorder_type___2','psych_disorder_type___3','psych_disorder_type___4','psych_disorder_type___5','psych_disorder_type___6','learning_disability_type___1','learning_disability_type___2','learning_disability_type___3','learning_disability_type___4','doi_clear_sx_medrec_2','sport_played_injured'],session_id=912, index=False, test_data=None)
+conc_class_3 = clf1.setup(conc_train, target = 'Predict3', ignore_features=['complete_rtp_recoded','Predict2','Predict1','doi_clear_sx_medrec_edited','doi_clear_sx_medrec_cat','record_id','doi_clear_sx_medrec_2','sport_played_injured'], index=False, test_data=None,session_id=200)
 
 #find top models
 conc_best_class = conc_class_3.compare_models() #compare ML models
@@ -162,6 +173,22 @@ clf1.predict_model(conc_tuned_ada_3)
 final_conc_ada_3 = clf1.finalize_model(conc_tuned_ada_3)
 conc_pred_3_ada = clf1.predict_model(final_conc_ada_3, data=conc_test)
 
+#XGBoost
+conc_xg_3 = clf1.create_model('xgboost',fold=5)
+conc_tuned_xg_3 = clf1.tune_model(conc_xg_3,fold=5,optimize='AUC')
+clf1.plot_model(conc_tuned_xg_3, plot='feature')
+clf1.predict_model(conc_tuned_xg_3)
+final_conc_xg_3 = clf1.finalize_model(conc_tuned_xg_3)
+conc_pred_3_xg = clf1.predict_model(final_conc_xg_3, data=conc_test)
+
+#logistic
+conc_lr_3 = clf1.create_model('lr',fold=5)
+conc_tuned_lr_3 = clf1.tune_model(conc_lr_3,fold=5,optimize='AUC')
+clf1.plot_model(conc_tuned_lr_3, plot='feature')
+clf1.predict_model(conc_tuned_lr_3)
+final_conc_lr_3 = clf1.finalize_model(conc_tuned_lr_3)
+conc_pred_3_lr = clf1.predict_model(final_conc_lr_3, data=conc_test)
+
 #confusion matrix
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 import matplotlib.pyplot as plt
@@ -177,3 +204,7 @@ plt.xlabel('Predicted')
 plt.ylabel('Actual')
 plt.title('Confusion Matrix')
 plt.show()
+
+#feature importance for catboost
+clf1.plot_model(conc_tuned_cat_3, plot='feature_all')
+clf1.interpret_model(conc_tuned_cat_3, plot='pfi',scale=3,save=True)
