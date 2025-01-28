@@ -1,7 +1,11 @@
+!pip install pycaret
+!pip install pycaret[full]
+!pip install interpret-community
 import pandas as pd
 import pycaret as py
 import sklearn as sk
 import numpy as np
+import statistics as stat
 import pycaret.regression as pycr
 from pycaret.classification import *
 clf1 = ClassificationExperiment()
