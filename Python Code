@@ -14,7 +14,7 @@ clf1 = ClassificationExperiment()
 conc_data=pd.read_csv("/ContexData_TimeToClinicLessThan2Weeks.csv") #read in data
 
 ########train-test split#########
-conc_train, conc_test = sk.model_selection.train_test_split(conc_data, test_size=0.2, random_state=5) #subset into train and test
+conc_train, conc_test = sk.model_selection.train_test_split(conc_data, test_size=0.2, random_state=5)
 
 #########imputation for training set#########
 imputer = sk.impute.IterativeImputer()
